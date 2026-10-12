@@ -21,6 +21,7 @@
 
 	const showShell = $derived(
 		Boolean(data.user) &&
+			$page.url.pathname !== '/login' &&
 			$page.url.pathname !== '/onboarding' &&
 			$page.url.pathname !== '/account/setup'
 	);
@@ -32,6 +33,7 @@
 			domains: data.domains,
 			addresses: data.addresses,
 			activeDomainId: data.activeDomainId,
+			accounts: data.accounts,
 			counts: data.counts,
 			uiTheme: data.uiTheme
 		};

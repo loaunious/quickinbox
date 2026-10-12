@@ -73,7 +73,14 @@
 		"moreAddresses": "更多地址",
 		"lightMode": "浅色模式",
 		"darkMode": "深色模式",
-		"account": "账户"
+		"account": "账户",
+		"accounts": "账户",
+		"active": "当前账户",
+		"addAccount": "添加账户",
+		"addAccountTitle": "添加其他账户 — {app}",
+		"currentAccounts": "此设备上已登录的账户",
+		"backToMail": "返回 Quickmail",
+		"switchFailed": "无法切换账户，请重试。"
 	},
 	"auth": {
 		"signInTitle": "登录 — {app}",
@@ -287,6 +294,9 @@
 		"addRecipient": "添加收件人",
 		"couldNotLoad": "无法加载此对话",
 		"couldNotForward": "无法转发",
+		"autoForwardedTo": "已自动转发至 {target}",
+		"autoForwardFailed": "自动转发失败",
+		"autoForwardSkipped": "已跳过自动转发",
 		"couldNotSendReply": "无法发送回复",
 		"failedToForward": "转发失败",
 		"messagesCount": "{count} 封邮件",
@@ -342,6 +352,10 @@
 		"makeDefault": "设为默认",
 		"removeAddress": "移除 {address}",
 		"mailboxSignature": "此地址的签名",
+		"replyTo": "回复地址（可选）",
+		"replyToHint": "对此地址发出的邮件，回复将发送到这里",
+		"forwardTo": "自动转发至（可选）",
+		"forwardToHint": "发到此地址的新邮件也会自动发送到这里",
 		"addressLabel": "地址",
 		"canSendNotReceive": "{domain} 可以发信，但未开启接收。",
 		"couldNotAddAddress": "无法添加该地址",
@@ -396,7 +410,9 @@
 		"disconnectDevice": "断开 {name}？",
 		"thisBrowserSession": "此浏览器会话",
 		"couldNotDisconnect": "无法断开该设备",
-		"disconnectNetwork": "断开该设备时出现网络错误"
+		"disconnectNetwork": "断开该设备时出现网络错误",
+		"couldNotSaveReplyTo": "无法保存该回复地址",
+		"couldNotSaveForwardTo": "无法保存该转发地址"
 	},
 	"install": {
 		"homeScreen": "主屏幕",

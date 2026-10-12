@@ -67,6 +67,10 @@ export type MailAddress = {
 	is_default: boolean;
 	/** Sign-off for this mailbox. Falls back to the account signature when empty. */
 	signature: string | null;
+	/** Optional Reply-To override on outbound mail; replies land here instead of on this address. */
+	reply_to: string | null;
+	/** When set, new inbound mail on this address is also auto-forwarded here. */
+	forward_to: string | null;
 	created_at: string;
 };
 
@@ -206,6 +210,16 @@ export type ThreadMessage = {
 	archived_at: string | null;
 	created_at: string;
 	attachments: EmailAttachmentMeta[];
+	/** Outcome of the automatic forward this message was given, if any. */
+	auto_forward: AutoForwardInfo | null;
+};
+
+/** What happened when an inbound message was auto-forwarded to its address's target. */
+export type AutoForwardInfo = {
+	target: string;
+	status: 'sent' | 'failed' | 'skipped';
+	/** Why a non-sent forward turned out that way, when known. */
+	error: string | null;
 };
 
 export type EmailAttachmentMeta = {

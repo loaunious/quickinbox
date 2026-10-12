@@ -806,7 +806,7 @@ export async function listThreadMessages(
 		)
 		.bind(userId, threadId)
 		.all<
-			Omit<ThreadMessage, 'attachments' | 'is_read' | 'is_starred'> & {
+			Omit<ThreadMessage, 'attachments' | 'is_read' | 'is_starred' | 'auto_forward'> & {
 				is_read: number;
 				is_starred: number;
 			}
@@ -826,14 +826,30 @@ export async function listThreadMessages(
 		.bind(...results.map((message) => message.id))
 		.all<EmailAttachmentMeta>();
 
+	// Auto-forward outcomes, one round trip too, for the status line on the message.
+	const { results: forwards } = await db
+		.prepare(
+			`SELECT email_id, target, status, error
+			 FROM auto_forwards
+			 WHERE email_id IN (${placeholders})`
+		)
+		.bind(...results.map((message) => message.id))
+		.all<{ email_id: string; target: string; status: 'sent' | 'failed' | 'skipped'; error: string | null }>();
+
 	// The query already filters drafts out, so `status` is a delivery state or null
 	// and needs no further narrowing here.
-	return results.map((message) => ({
-		...message,
-		is_read: message.is_read === 1,
-		is_starred: message.is_starred === 1,
-		attachments: files.filter((file) => file.email_id === message.id)
-	}));
+	return results.map((message) => {
+		const forward = forwards.find((row) => row.email_id === message.id);
+		return {
+			...message,
+			is_read: message.is_read === 1,
+			is_starred: message.is_starred === 1,
+			attachments: files.filter((file) => file.email_id === message.id),
+			auto_forward: forward
+				? { target: forward.target, status: forward.status, error: forward.error }
+				: null
+		};
+	});
 }
 
 /** Opening a conversation clears the unread state on all of its messages. */

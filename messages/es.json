@@ -73,7 +73,14 @@
 		"moreAddresses": "Más direcciones",
 		"lightMode": "Modo claro",
 		"darkMode": "Modo oscuro",
-		"account": "Cuenta"
+		"account": "Cuenta",
+		"accounts": "Cuentas",
+		"active": "Cuenta activa",
+		"addAccount": "Añadir cuenta",
+		"addAccountTitle": "Añadir otra cuenta — {app}",
+		"currentAccounts": "Cuentas con sesión iniciada en este dispositivo",
+		"backToMail": "Volver a Quickmail",
+		"switchFailed": "No se pudieron cambiar las cuentas. Inténtalo de nuevo."
 	},
 	"auth": {
 		"signInTitle": "Iniciar sesión — {app}",
@@ -287,6 +294,9 @@
 		"addRecipient": "Añadir un destinatario",
 		"couldNotLoad": "No se pudo cargar esta conversación",
 		"couldNotForward": "No se pudo reenviar",
+		"autoForwardedTo": "Reenviado automáticamente a {target}",
+		"autoForwardFailed": "Error al reenviar automáticamente",
+		"autoForwardSkipped": "Reenvío automático omitido",
 		"couldNotSendReply": "No se pudo enviar la respuesta",
 		"failedToForward": "Error al reenviar",
 		"messagesCount": "{count} mensajes",
@@ -342,6 +352,10 @@
 		"makeDefault": "Hacer predeterminada",
 		"removeAddress": "Quitar {address}",
 		"mailboxSignature": "Firma de esta dirección",
+		"replyTo": "Responder a (opcional)",
+		"replyToHint": "Las respuestas a este correo van a esta dirección",
+		"forwardTo": "Reenviar automáticamente a (opcional)",
+		"forwardToHint": "El correo nuevo de esta dirección también se envía aquí automáticamente",
 		"addressLabel": "Dirección",
 		"canSendNotReceive": "{domain} puede enviar, pero la recepción está desactivada.",
 		"couldNotAddAddress": "No se pudo añadir esa dirección",
@@ -396,7 +410,9 @@
 		"disconnectDevice": "¿Desconectar {name}?",
 		"thisBrowserSession": "esta sesión del navegador",
 		"couldNotDisconnect": "No se pudo desconectar ese dispositivo",
-		"disconnectNetwork": "Error de red al desconectar ese dispositivo"
+		"disconnectNetwork": "Error de red al desconectar ese dispositivo",
+		"couldNotSaveReplyTo": "No se pudo guardar esa dirección",
+		"couldNotSaveForwardTo": "No se pudo guardar esa dirección de reenvío"
 	},
 	"install": {
 		"homeScreen": "Pantalla de inicio",

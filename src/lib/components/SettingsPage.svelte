@@ -380,6 +380,56 @@
 		}
 	}
 
+	async function saveReplyTo(id: string, value: string) {
+		const current = addresses.find((address) => address.id === id);
+		if (!current || (current.reply_to ?? '') === value.trim()) return;
+
+		savingId = id;
+		error = '';
+		try {
+			const res = await fetch(`/api/addresses/${id}`, {
+				method: 'PATCH',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ replyTo: value })
+			});
+			const body = await res.json();
+			if (!res.ok) {
+				error = body.error ?? t('settings.couldNotSaveReplyTo');
+				return;
+			}
+			edited = body.addresses;
+		} catch {
+			error = t('common.networkError');
+		} finally {
+			savingId = '';
+		}
+	}
+
+	async function saveForwardTo(id: string, value: string) {
+		const current = addresses.find((address) => address.id === id);
+		if (!current || (current.forward_to ?? '') === value.trim()) return;
+
+		savingId = id;
+		error = '';
+		try {
+			const res = await fetch(`/api/addresses/${id}`, {
+				method: 'PATCH',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ forwardTo: value })
+			});
+			const body = await res.json();
+			if (!res.ok) {
+				error = body.error ?? t('settings.couldNotSaveForwardTo');
+				return;
+			}
+			edited = body.addresses;
+		} catch {
+			error = t('common.networkError');
+		} finally {
+			savingId = '';
+		}
+	}
+
 	async function remove(id: string) {
 		const res = await fetch(`/api/addresses/${id}`, { method: 'DELETE' });
 		const body = await res.json();
@@ -723,6 +773,26 @@
 						disabled={savingId === address.id}
 						onchange={(event) => saveMailboxSignature(address.id, event.currentTarget.value)}
 					></textarea>
+					<input
+						type="email"
+						class="name-input reply-to-input"
+						value={address.reply_to ?? ''}
+						placeholder={t('settings.replyTo')}
+						title={t('settings.replyToHint')}
+						aria-label={t('settings.replyTo')}
+						disabled={savingId === address.id}
+						onchange={(event) => saveReplyTo(address.id, event.currentTarget.value)}
+					/>
+					<input
+						type="email"
+						class="name-input reply-to-input"
+						value={address.forward_to ?? ''}
+						placeholder={t('settings.forwardTo')}
+						title={t('settings.forwardToHint')}
+						aria-label={t('settings.forwardTo')}
+						disabled={savingId === address.id}
+						onchange={(event) => saveForwardTo(address.id, event.currentTarget.value)}
+					/>
 				</li>
 			{/each}
 		</ul>
@@ -1387,6 +1457,10 @@
 		background: var(--color-surface-muted);
 		box-shadow: inset 0 0 0 1px var(--color-line);
 		outline: none;
+	}
+
+	.reply-to-input {
+		margin-top: 0.375rem;
 	}
 
 	.mailbox-signature:focus {

@@ -73,7 +73,14 @@
 		"moreAddresses": "More addresses",
 		"lightMode": "Light mode",
 		"darkMode": "Dark mode",
-		"account": "Account"
+		"account": "Account",
+		"accounts": "Accounts",
+		"active": "Active account",
+		"addAccount": "Add account",
+		"addAccountTitle": "Add another account — {app}",
+		"currentAccounts": "Accounts already signed in on this device",
+		"backToMail": "Back to Quickmail",
+		"switchFailed": "Could not switch accounts. Try again."
 	},
 	"auth": {
 		"signInTitle": "Sign in — {app}",
@@ -287,6 +294,9 @@
 		"addRecipient": "Add a recipient",
 		"couldNotLoad": "Could not load this conversation",
 		"couldNotForward": "Could not forward",
+		"autoForwardedTo": "Auto-forwarded to {target}",
+		"autoForwardFailed": "Auto-forward failed",
+		"autoForwardSkipped": "Auto-forward skipped",
 		"couldNotSendReply": "Could not send reply",
 		"failedToForward": "Failed to forward",
 		"messagesCount": "{count} messages",
@@ -342,6 +352,10 @@
 		"makeDefault": "Make default",
 		"removeAddress": "Remove {address}",
 		"mailboxSignature": "Signature for this address",
+		"replyTo": "Reply-To override (optional)",
+		"replyToHint": "Replies to mail from this address go here instead",
+		"forwardTo": "Auto-forward to (optional)",
+		"forwardToHint": "New mail to this address is also sent here automatically",
 		"addressLabel": "Address",
 		"canSendNotReceive": "{domain} can send, but inbound is off.",
 		"couldNotAddAddress": "Could not add that address",
@@ -396,7 +410,9 @@
 		"disconnectDevice": "Disconnect {name}?",
 		"thisBrowserSession": "this browser session",
 		"couldNotDisconnect": "Could not disconnect that device",
-		"disconnectNetwork": "Network error while disconnecting that device"
+		"disconnectNetwork": "Network error while disconnecting that device",
+		"couldNotSaveReplyTo": "Could not save that reply-to address",
+		"couldNotSaveForwardTo": "Could not save that forwarding address"
 	},
 	"install": {
 		"homeScreen": "Home screen",

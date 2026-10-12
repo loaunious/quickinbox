@@ -36,9 +36,7 @@
 
 	"vars": {
 		"EMAIL_PROVIDER": "resend",
-		// Dashboard form requires a non-empty value. Keep example.com for
-		// Resend; replace with your domain when EMAIL_PROVIDER=cloudflare.
-		"CLOUDFLARE_MAIL_DOMAINS": "example.com"
+		// "CLOUDFLARE_MAIL_DOMAINS": "example.com"
 	},
 
 	"send_email": [
@@ -53,7 +51,7 @@
 			"binding": "DB",
 			"database_name": "quickmail",
 			// `bun run setup` fills this in, or: wrangler d1 create <name>
-			"database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID",
+			"database_id": "c1db4ca4-0889-4a8b-b0ac-e1c8dbaec756",
 			"migrations_dir": "migrations"
 		}
 	],
@@ -68,5 +66,11 @@
 
 	"observability": {
 		"enabled": true
+	},
+
+	// Daily cleanup of the webhook dedupe table (see the `scheduled` handler in
+	// src/worker.ts).
+	"triggers": {
+		"crons": ["0 3 * * *"]
 	}
 }

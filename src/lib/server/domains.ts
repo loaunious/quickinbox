@@ -24,6 +24,8 @@ type AddressRow = {
 	label: string | null;
 	is_default: number;
 	signature: string | null;
+	reply_to: string | null;
+	forward_to: string | null;
 	created_at: string;
 };
 
@@ -51,6 +53,8 @@ function mapAddress(row: AddressRow): MailAddress {
 		label: row.label,
 		is_default: row.is_default === 1,
 		signature: row.signature,
+		reply_to: row.reply_to,
+		forward_to: row.forward_to,
 		created_at: row.created_at
 	};
 }
@@ -163,7 +167,7 @@ export async function syncDomains(db: D1Database, provider: EmailProvider): Prom
 /* -------------------------------------------------------------------------- */
 
 const ADDRESS_SELECT = `SELECT a.id, a.user_id, a.domain_id, d.name AS domain_name, a.address,
-	a.label, a.is_default, a.signature, a.created_at
+	a.label, a.is_default, a.signature, a.reply_to, a.forward_to, a.created_at
 	FROM addresses a JOIN domains d ON d.id = a.domain_id`;
 
 export async function listAddressesForUser(
@@ -249,7 +253,12 @@ export async function updateAddress(
 	db: D1Database,
 	userId: string,
 	addressId: string,
-	patch: { label?: string | null; signature?: string | null }
+	patch: {
+		label?: string | null;
+		signature?: string | null;
+		replyTo?: string | null;
+		forwardTo?: string | null;
+	}
 ): Promise<MailAddress> {
 	const current = await getAddressForUser(db, userId, addressId);
 	if (!current) {
@@ -261,10 +270,26 @@ export async function updateAddress(
 	if (patch.signature !== undefined) {
 		signature = parseMailboxSignature(patch.signature ?? '');
 	}
+	let replyTo = current.reply_to;
+	if (patch.replyTo !== undefined) {
+		replyTo = patch.replyTo?.trim() || null;
+		if (replyTo && !/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(replyTo)) {
+			throw new Error('Reply-To must be a valid email address');
+		}
+	}
+	let forwardTo = current.forward_to;
+	if (patch.forwardTo !== undefined) {
+		forwardTo = patch.forwardTo?.trim() || null;
+		if (forwardTo && !/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(forwardTo)) {
+			throw new Error('Forward-to must be a valid email address');
+		}
+	}
 
 	await db
-		.prepare('UPDATE addresses SET label = ?, signature = ? WHERE id = ? AND user_id = ?')
-		.bind(label, signature, addressId, userId)
+		.prepare(
+			'UPDATE addresses SET label = ?, signature = ?, reply_to = ?, forward_to = ? WHERE id = ? AND user_id = ?'
+		)
+		.bind(label, signature, replyTo, forwardTo, addressId, userId)
 		.run();
 
 	const saved = await getAddressForUser(db, userId, addressId);

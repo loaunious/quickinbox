@@ -16,12 +16,21 @@ export const PATCH: RequestHandler = async ({ params, request, locals, platform 
 		isDefault?: boolean;
 		label?: string | null;
 		signature?: string | null;
+		replyTo?: string | null;
+		forwardTo?: string | null;
 	};
-	if (body.label !== undefined || body.signature !== undefined) {
+	if (
+		body.label !== undefined ||
+		body.signature !== undefined ||
+		body.replyTo !== undefined ||
+		body.forwardTo !== undefined
+	) {
 		try {
 			await updateAddress(db, locals.user.id, params.id!, {
 				label: body.label,
-				signature: body.signature
+				signature: body.signature,
+				replyTo: body.replyTo,
+				forwardTo: body.forwardTo
 			});
 		} catch (error) {
 			return json(

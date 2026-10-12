@@ -1,5 +1,10 @@
-import type { D1Database, R2Bucket } from '@cloudflare/workers-types';
+import type { D1Database } from '@cloudflare/workers-types';
 import type { DeliveryStatus } from '$lib/types';
+import {
+	hasAutoForwardMarker,
+	scheduleAutoForward,
+	type AutoForwardEnv
+} from './auto-forward';
 import { insertAttachmentBytes } from './attachments';
 import { MAX_ATTACHMENT_BYTES, MAX_ATTACHMENTS_PER_EMAIL, MAX_BODY_BYTES } from './constants';
 import { collectInboundRecipients, parseEmailIdentity } from './email-address';
@@ -19,7 +24,7 @@ export type WebhookOutcome = {
 	note: string;
 };
 
-type InboundEnv = PushNotificationEnv & { ATTACHMENTS: R2Bucket };
+type InboundEnv = PushNotificationEnv & AutoForwardEnv;
 
 /** Resend delivery events → the status we display on a sent message. */
 const STATUS_BY_EVENT: Record<string, DeliveryStatus> = {
@@ -141,6 +146,12 @@ async function handleInboundEmail(
 		userId: route.userId,
 		from: sender.name || from,
 		subject
+	});
+	await scheduleAutoForward(env, {
+		emailId,
+		userId: route.userId,
+		addressId: route.addressId,
+		isBounce: hasAutoForwardMarker(received.headers)
 	});
 
 	return {

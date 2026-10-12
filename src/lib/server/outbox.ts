@@ -33,6 +33,8 @@ export type ComposeInput = {
 	inReplyTo?: string | null;
 	references?: string | null;
 	replyToEmailId?: string | null;
+	/** Extra mail headers for the provider to set on the message. */
+	headers?: Record<string, string>;
 	attachments?: OutboundAttachmentInput[];
 	/** Forward-all can legitimately combine the per-message attachment sets. */
 	allowCombinedAttachments?: boolean;
@@ -125,6 +127,8 @@ export async function resolveReplyFromAddress(
 			address: mailbox,
 			label: null,
 			signature: null,
+			reply_to: null,
+			forward_to: null,
 			is_default: false,
 			created_at: new Date().toISOString()
 		};
@@ -171,6 +175,7 @@ export async function sendAndStore(
 		html: html ?? undefined,
 		inReplyTo: input.inReplyTo,
 		references: input.references,
+		headers: input.headers,
 		attachments
 	});
 

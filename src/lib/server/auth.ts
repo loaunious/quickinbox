@@ -1,5 +1,8 @@
+import type { Cookies } from '@sveltejs/kit';
 import type { D1Database, R2Bucket } from '@cloudflare/workers-types';
 import {
+	ACCOUNTS_COOKIE,
+	MAX_ACCOUNTS,
 	PAIRING_CODE_TTL_MINUTES,
 	MOBILE_SESSION_DAYS,
 	SESSION_COOKIE,
@@ -714,6 +717,157 @@ export function sessionCookieOptions(maxAgeSeconds: number, url: URL) {
 
 export function readSessionToken(cookies: { get: (name: string) => string | undefined }): string | undefined {
 	return cookies.get(SESSION_COOKIE);
+}
+
+// ---- Multi-account (Gmail-style signed-in account list) -------------------
+
+export type AccountSessionEntry = { u: string; t: string };
+
+export type AccountSummary = {
+	userId: string;
+	email: string;
+	name: string;
+	/** True when this entry is the cookie's currently active session. */
+	active: boolean;
+};
+
+function parseAccountsCookie(raw: string | undefined): AccountSessionEntry[] {
+	if (!raw) return [];
+	try {
+		const parsed = JSON.parse(raw) as unknown;
+		if (!Array.isArray(parsed)) return [];
+		return parsed
+			.filter(
+				(entry): entry is AccountSessionEntry =>
+					typeof entry === 'object' &&
+					entry !== null &&
+					typeof (entry as AccountSessionEntry).u === 'string' &&
+					typeof (entry as AccountSessionEntry).t === 'string'
+			)
+			.slice(0, MAX_ACCOUNTS);
+	} catch {
+		return [];
+	}
+}
+
+export function readAccountSessionEntries(cookies: {
+	get: (name: string) => string | undefined;
+}): AccountSessionEntry[] {
+	return parseAccountsCookie(cookies.get(ACCOUNTS_COOKIE));
+}
+
+/**
+ * The browser's full session list: every account signed in here, each with a
+ * live session row. Entries whose session expired or was revoked drop out of
+ * the returned list. When the legacy single-account cookie predates the multi
+ * cookie, it seeds the list so the user sees themselves once, not twice.
+ */
+export async function listSessionAccounts(
+	db: D1Database,
+	cookies: { get: (name: string) => string | undefined }
+): Promise<AccountSummary[]> {
+	const entries = parseAccountsCookie(cookies.get(ACCOUNTS_COOKIE));
+	const activeToken = readSessionToken(cookies);
+
+	if (activeToken && !entries.some((entry) => entry.t === activeToken)) {
+		const session = await getAuthenticatedSession(db, activeToken);
+		if (session && !session.isMobile) entries.push({ u: session.user.id, t: activeToken });
+	}
+
+	const summaries = new Map<string, AccountSummary>();
+	for (const entry of entries) {
+		const session = await getAuthenticatedSession(db, entry.t);
+		if (!session || session.isMobile || session.user.id !== entry.u) continue;
+		summaries.delete(session.user.id);
+		summaries.set(session.user.id, {
+			userId: session.user.id,
+			email: session.user.email,
+			name: session.user.name,
+			active: entry.t === activeToken
+		});
+	}
+	return Array.from(summaries.values());
+}
+
+/**
+ * Add (or replace) an account entry and make it active. Call after a
+ * successful login. Returns nothing; cookie writes happen through `cookies`.
+ */
+export function rememberAccountSession(
+	cookies: Cookies,
+	url: URL,
+	userId: string,
+	token: string,
+	previousActiveAccount?: AccountSessionEntry
+): void {
+	const entries = readAccountSessionEntries(cookies);
+	if (
+		previousActiveAccount &&
+		previousActiveAccount.u !== userId &&
+		!entries.some((entry) => entry.t === previousActiveAccount.t)
+	) {
+		entries.push(previousActiveAccount);
+	}
+
+	// Keep the most recent session for each account and preserve recency order.
+	const byUser = new Map<string, AccountSessionEntry>();
+	for (const entry of entries) {
+		byUser.delete(entry.u);
+		byUser.set(entry.u, entry);
+	}
+	byUser.delete(userId);
+	byUser.set(userId, { u: userId, t: token });
+	const normalized = Array.from(byUser.values()).slice(-MAX_ACCOUNTS);
+
+	const options = sessionCookieOptions(SESSION_DAYS * 24 * 60 * 60, url);
+	cookies.set(SESSION_COOKIE, token, options);
+	cookies.set(ACCOUNTS_COOKIE, JSON.stringify(normalized), options);
+}
+
+/**
+ * Sign out one account from the browser list, or all of them. Returns the
+ * remaining entries' tokens are untouched server-side; callers delete their
+ * session rows first as needed.
+ */
+export function forgetAccountSession(
+	cookies: Cookies,
+	url: URL,
+	userId: string,
+	fallbackToken: string | undefined,
+	knownEntries?: AccountSessionEntry[]
+): { remaining: AccountSessionEntry[]; activeToken: string | undefined } {
+	const entries = knownEntries ?? readAccountSessionEntries(cookies);
+	const remaining = entries.filter((entry) => entry.u !== userId);
+	const options = sessionCookieOptions(SESSION_DAYS * 24 * 60 * 60, url);
+
+	if (remaining.length === 0) {
+		cookies.delete(ACCOUNTS_COOKIE, { path: '/' });
+		cookies.delete(SESSION_COOKIE, { path: '/' });
+		return { remaining, activeToken: undefined };
+	}
+
+	const activeToken =
+		remaining.find((entry) => entry.t === fallbackToken)?.t ?? remaining[0].t;
+	cookies.set(ACCOUNTS_COOKIE, JSON.stringify(remaining), options);
+	cookies.set(SESSION_COOKIE, activeToken, options);
+	return { remaining, activeToken };
+}
+
+/**
+ * Point the active cookie at another signed-in account. The token is read from
+ * the browser's own account list, so you can only activate a session this
+ * browser already holds.
+ */
+export function activateAccountSession(
+	cookies: Cookies,
+	url: URL,
+	userId: string
+): boolean {
+	const entries = parseAccountsCookie(cookies.get(ACCOUNTS_COOKIE));
+	const entry = entries.find((item) => item.u === userId);
+	if (!entry) return false;
+	cookies.set(SESSION_COOKIE, entry.t, sessionCookieOptions(SESSION_DAYS * 24 * 60 * 60, url));
+	return true;
 }
 
 export { SESSION_COOKIE };

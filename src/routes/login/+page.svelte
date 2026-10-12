@@ -4,6 +4,11 @@
 	import { discardPushSubscriptionFromAnotherAccount } from '$lib/push-client';
 	import { t } from '$lib/i18n';
 	import { page } from '$app/stores';
+	import AccountSwitcher from '$lib/components/AccountSwitcher.svelte';
+	import type { AccountSummary } from '$lib/server/auth';
+
+	const existingAccounts = $derived(($page.data.accounts ?? []) as AccountSummary[]);
+	const addingAccount = $derived($page.url.searchParams.get('add') === '1');
 
 	let email = $state('');
 	let password = $state('');
@@ -41,15 +46,27 @@
 </script>
 
 <svelte:head>
-	<title>{t('auth.signInTitle', { app: APP_NAME })}</title>
+	<title>
+		{addingAccount
+			? t('account.addAccountTitle', { app: APP_NAME })
+			: t('auth.signInTitle', { app: APP_NAME })}
+	</title>
 </svelte:head>
 
 <div class="auth-shell">
 	<div class="auth-card">
 		<div class="auth-brand">
 			<div class="brand-icon"><Logo size={48} /></div>
-			<h1>{t('auth.signIn')}</h1>
+			<h1>{addingAccount ? t('account.addAccount') : t('auth.signIn')}</h1>
 		</div>
+
+		{#if existingAccounts.length > 0}
+			<section class="existing-accounts" aria-label={t('account.currentAccounts')}>
+				<p class="existing-accounts-note">{t('account.currentAccounts')}</p>
+				<AccountSwitcher accounts={existingAccounts} showAddAccount={false} />
+				<a class="return-link" href="/inbox">{t('account.backToMail')}</a>
+			</section>
+		{/if}
 
 		<form class="mt-8 space-y-4" onsubmit={submit}>
 			{#if $page.url.searchParams.get('setup') === 'complete'}
@@ -88,6 +105,26 @@
 		flex-direction: column;
 		align-items: center;
 		text-align: center;
+	}
+
+	.existing-accounts {
+		margin-top: 1.5rem;
+		padding: 0.875rem 0.5rem 0.25rem;
+		border-top: 1px solid var(--color-line);
+	}
+
+	.existing-accounts-note {
+		padding: 0 0.625rem 0.375rem;
+		font-size: 0.75rem;
+		color: var(--color-muted);
+	}
+
+	.return-link {
+		display: inline-flex;
+		margin: 0.5rem 0.625rem 0.25rem;
+		font-size: 0.8125rem;
+		font-weight: 500;
+		color: var(--color-accent);
 	}
 
 	.brand-icon {

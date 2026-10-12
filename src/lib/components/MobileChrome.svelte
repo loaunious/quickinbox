@@ -3,6 +3,7 @@
 	import Icon from './Icon.svelte';
 	import DomainSwitcher from './DomainSwitcher.svelte';
 	import LocaleSwitcher from './LocaleSwitcher.svelte';
+	import AccountSwitcher from './AccountSwitcher.svelte';
 	import { haptic, isMailboxPath, isMorePath } from '$lib/app-chrome';
 	import { t } from '$lib/i18n';
 	import type { Domain, MailboxCounts } from '$lib/types';
@@ -12,12 +13,14 @@
 		domains,
 		activeDomainId,
 		isAdmin,
+		accounts,
 		onLogout
 	}: {
 		counts: MailboxCounts;
 		domains: Domain[];
 		activeDomainId: string | null;
 		isAdmin: boolean;
+		accounts: import('$lib/server/auth').AccountSummary[];
 		onLogout: () => void;
 	} = $props();
 
@@ -171,6 +174,12 @@
 			<div class="sheet-section">
 				<p class="sheet-title">{t('nav.domains')}</p>
 				<DomainSwitcher {domains} {activeDomainId} block />
+			</div>
+		{/if}
+
+		{#if accounts.length > 0}
+			<div class="sheet-section">
+				<AccountSwitcher {accounts} />
 			</div>
 		{/if}
 

@@ -16,11 +16,23 @@ export { ProviderError } from './email-provider';
 
 type PlatformLike = App.Platform | undefined | null;
 
+/** The env subset that picks and configures the active provider. */
+type ProviderEnv = {
+	EMAIL_PROVIDER?: string;
+	RESEND_API_KEY?: string;
+	EMAIL?: Env['EMAIL'];
+	CLOUDFLARE_MAIL_DOMAINS?: string;
+} | null | undefined;
+
+function emailProviderKind(raw: string | undefined): EmailProviderKind {
+	const value = raw?.trim().toLowerCase();
+	if (!value || value === 'resend') return 'resend';
+	if (value === 'cloudflare') return 'cloudflare';
+	throw new ConfigError(`Unknown EMAIL_PROVIDER "${raw}". Use "resend" or "cloudflare".`);
+}
+
 export function getEmailProviderKind(platform: PlatformLike): EmailProviderKind {
-	const raw = platform?.env.EMAIL_PROVIDER?.trim().toLowerCase();
-	if (!raw || raw === 'resend') return 'resend';
-	if (raw === 'cloudflare') return 'cloudflare';
-	throw new ConfigError(`Unknown EMAIL_PROVIDER "${platform?.env.EMAIL_PROVIDER}". Use "resend" or "cloudflare".`);
+	return emailProviderKind(platform?.env.EMAIL_PROVIDER);
 }
 
 export function safeEmailProviderKind(platform: PlatformLike): EmailProviderKind {
@@ -31,12 +43,12 @@ export function safeEmailProviderKind(platform: PlatformLike): EmailProviderKind
 	}
 }
 
-export function getEmailProvider(platform: PlatformLike): EmailProvider {
-	const kind = getEmailProviderKind(platform);
+export function getEmailProviderForEnv(env: ProviderEnv): EmailProvider {
+	const kind = emailProviderKind(env?.EMAIL_PROVIDER);
 
 	switch (kind) {
 		case 'resend': {
-			const apiKey = platform?.env.RESEND_API_KEY;
+			const apiKey = env?.RESEND_API_KEY;
 			if (!apiKey) {
 				throw new ConfigError(
 					'RESEND_API_KEY is not set. Add it with `wrangler secret put RESEND_API_KEY` (or to .dev.vars locally).'
@@ -45,19 +57,23 @@ export function getEmailProvider(platform: PlatformLike): EmailProvider {
 			return createResendProvider(apiKey);
 		}
 		case 'cloudflare': {
-			const email = platform?.env.EMAIL;
+			const email = env?.EMAIL;
 			if (!email) {
 				throw new ConfigError(
 					'Cloudflare Email binding EMAIL is missing. Add a send_email binding named EMAIL in wrangler.jsonc.'
 				);
 			}
-			return createCloudflareProvider(email, platform?.env.CLOUDFLARE_MAIL_DOMAINS ?? '');
+			return createCloudflareProvider(email, env?.CLOUDFLARE_MAIL_DOMAINS ?? '');
 		}
 		default: {
 			const _never: never = kind;
 			return _never;
 		}
 	}
+}
+
+export function getEmailProvider(platform: PlatformLike): EmailProvider {
+	return getEmailProviderForEnv(platform?.env);
 }
 
 export function hasProviderConfigured(platform: PlatformLike): boolean {

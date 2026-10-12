@@ -164,6 +164,19 @@
 			</button>
 		</div>
 
+		{#if message.auto_forward}
+			{@const fwd = message.auto_forward}
+			<p class="auto-forward" class:failed={fwd.status === 'failed'}>
+				<Icon name="share-forward-line" size={13} />
+				{#if fwd.status === 'sent'}
+					{t('thread.autoForwardedTo', { target: fwd.target })}
+				{:else}
+					{t(fwd.status === 'failed' ? 'thread.autoForwardFailed' : 'thread.autoForwardSkipped')}
+					{#if fwd.error}<span> — {fwd.error}</span>{/if}
+				{/if}
+			</p>
+		{/if}
+
 		{#if message.status === 'bounced' || message.status === 'failed'}
 			<p class="failure">
 				<Icon name="error-warning-line" size={13} />
@@ -328,6 +341,20 @@
 		margin-top: 0.75rem;
 		font-size: 0.75rem;
 		line-height: 1.5;
+		color: var(--color-danger);
+	}
+
+	.auto-forward {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.375rem;
+		margin-top: 0.75rem;
+		font-size: 0.75rem;
+		line-height: 1.5;
+		color: var(--color-muted);
+	}
+
+	.auto-forward.failed {
 		color: var(--color-danger);
 	}
 

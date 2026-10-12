@@ -6,6 +6,7 @@
 	import { setThemePreference } from '$lib/theme';
 	import { t } from '$lib/i18n';
 	import Tooltip from '$lib/components/Tooltip.svelte';
+	import AccountSwitcher from '$lib/components/AccountSwitcher.svelte';
 	import type { MailAddress } from '$lib/types';
 	import type { ThemeShellData } from '$lib/ui-theme/types';
 	import Icon from './icons/Icon.svelte';
@@ -251,6 +252,11 @@
 			{/if}
 			{#if collapsed}
 				<LocaleSwitcher embedded />
+			{/if}
+			{#if data.accounts.length > 0}
+				<div class="z-accounts">
+					<AccountSwitcher accounts={data.accounts} onSwitch={closeMenus} />
+				</div>
 			{/if}
 			<a href="/settings/general" onclick={closeMenus}>
 				<Icon name="SettingsGear" size={16} />

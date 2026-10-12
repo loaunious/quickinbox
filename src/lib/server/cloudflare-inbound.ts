@@ -1,5 +1,5 @@
-import type { R2Bucket } from '@cloudflare/workers-types';
 import PostalMime, { type Address, type Attachment } from 'postal-mime';
+import { AUTO_FORWARD_HEADER, scheduleAutoForward, type AutoForwardEnv } from './auto-forward';
 import { insertAttachmentBytes } from './attachments';
 import { MAX_ATTACHMENT_BYTES, MAX_ATTACHMENTS_PER_EMAIL } from './constants';
 import { recordUnroutedEmail, resolveInboundRoute } from './domains';
@@ -16,9 +16,7 @@ export type CloudflareInboundMessage = {
 	setReject(reason: string): void;
 };
 
-export type CloudflareInboundEnv = PushNotificationEnv & {
-	ATTACHMENTS: R2Bucket;
-};
+export type CloudflareInboundEnv = PushNotificationEnv & AutoForwardEnv;
 
 /**
  * Email Routing delivers the full MIME on `message.raw`. Parse once, then reuse
@@ -95,6 +93,14 @@ export async function handleCloudflareInbound(
 		userId: route.userId,
 		from: sender?.name || from,
 		subject
+	});
+	// Headers.get is case-insensitive, so the marker matches whatever case the
+	// sending provider wrote it in.
+	await scheduleAutoForward(env, {
+		emailId,
+		userId: route.userId,
+		addressId: route.addressId,
+		isBounce: message.headers.get(AUTO_FORWARD_HEADER) !== null
 	});
 }
 

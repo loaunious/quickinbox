@@ -4,6 +4,7 @@ import { getUserByApiToken, readBearerToken } from '$lib/server/api-tokens';
 import {
 	countUsers,
 	getAuthenticatedSession,
+	listSessionAccounts,
 	readSessionToken
 } from '$lib/server/auth';
 import { DOMAIN_COOKIE, UI_THEME_COOKIE, UI_THEME_COOKIE_MAX_AGE } from '$lib/server/constants';
@@ -24,8 +25,10 @@ const PUBLIC_PREFIXES = [
 	'/setup',
 	'/api/auth/login',
 	'/api/auth/pair',
+	'/api/auth/switch',
 	'/api/setup',
 	'/api/webhooks',
+	'/api/health',
 	'/install.sh'
 ];
 
@@ -79,6 +82,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	event.locals.addresses = [];
 	event.locals.activeDomainId = null;
 	event.locals.currentSessionId = null;
+	event.locals.accounts = [];
 	event.locals.uiTheme = parseThemeId(event.cookies.get(UI_THEME_COOKIE), BUILTIN_THEME_IDS);
 	event.locals.locale =
 		matchLocale(event.cookies.get(LOCALE_COOKIE)) ??
@@ -110,6 +114,12 @@ export const handle: Handle = async ({ event, resolve }) => {
 					}
 				}
 			}
+		}
+
+		// Pages need the full signed-in account list for the Gmail-style
+		// switcher (and the login page shows it as a chooser). API routes do not.
+		if (!pathname.startsWith('/api/')) {
+			event.locals.accounts = await listSessionAccounts(db, event.cookies);
 		}
 	}
 
@@ -223,7 +233,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 	}
 
 	if (pathname === '/login') {
-		if (event.locals.user) {
+		// With ?add=1 a signed-in user can add another account, Gmail-style.
+		const addingAccount = event.url.searchParams.get('add') === '1';
+		if (event.locals.user && !addingAccount) {
 			throw redirect(303, event.locals.user.must_change_password ? '/account/setup' : '/inbox');
 		}
 		return render(event, resolve);

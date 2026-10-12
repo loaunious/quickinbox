@@ -49,8 +49,10 @@
 		} catch (error) {
 			console.warn('Could not fully remove the push subscription during logout', error);
 		} finally {
-			await fetch('/api/auth/login', { method: 'DELETE' });
-			window.location.href = '/login';
+			const res = await fetch('/api/auth/login', { method: 'DELETE' });
+			const body = await res.json().catch(() => null);
+			// Other accounts stay signed in (Gmail-style): land in theirs.
+			window.location.href = body?.remainingUserId ? '/inbox' : '/login';
 		}
 	}
 </script>
@@ -71,12 +73,13 @@
 	/>
 
 	<div class="app-content">
-		<Topbar
-			userName={data.user.name}
-			userEmail={data.user.email}
-			addresses={data.addresses}
-			onLogout={logout}
-		/>
+	<Topbar
+		userName={data.user.name}
+		userEmail={data.user.email}
+		addresses={data.addresses}
+		accounts={data.accounts}
+		onLogout={logout}
+	/>
 
 		<main class="app-main" class:app-main-narrow={narrow}>
 			{#if stacked}
@@ -95,6 +98,7 @@
 			domains={data.domains}
 			activeDomainId={data.activeDomainId}
 			isAdmin={data.user.is_admin}
+			accounts={data.accounts}
 			onLogout={logout}
 		/>
 	{/if}

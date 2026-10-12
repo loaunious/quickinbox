@@ -24,7 +24,7 @@ export function createResendProvider(apiKey: string): EmailProvider {
 						to: input.to,
 						...(input.cc?.length ? { cc: input.cc } : {}),
 						...(input.bcc?.length ? { bcc: input.bcc } : {}),
-						reply_to: input.from.address,
+						reply_to: input.from.reply_to ?? input.from.address,
 						subject: input.subject,
 						text: input.text,
 						html: input.html,

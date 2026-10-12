@@ -142,8 +142,10 @@
 		} catch (error) {
 			console.warn('Could not fully remove the push subscription during logout', error);
 		} finally {
-			await fetch('/api/auth/login', { method: 'DELETE' });
-			window.location.href = '/login';
+			const res = await fetch('/api/auth/login', { method: 'DELETE' });
+			const body = await res.json().catch(() => null);
+			// Other accounts stay signed in (Gmail-style): land in theirs.
+			window.location.href = body?.remainingUserId ? '/inbox' : '/login';
 		}
 	}
 

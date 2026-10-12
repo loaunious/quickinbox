@@ -1162,6 +1162,21 @@
 	background: #262626;
 }
 
+[data-ui-theme='zero'] .z-auto-forward {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.4rem;
+	margin: 0;
+	padding: 0 1rem 0.5rem;
+	font-size: 0.75rem;
+	line-height: 1.5;
+	color: var(--z-muted);
+}
+
+[data-ui-theme='zero'] .z-auto-forward.failed {
+	color: #f43f5e;
+}
+
 [data-ui-theme='zero'] .z-msg-actions {
 	display: flex;
 	flex-wrap: wrap;

@@ -73,7 +73,14 @@
 		"moreAddresses": "Plus d’adresses",
 		"lightMode": "Mode clair",
 		"darkMode": "Mode sombre",
-		"account": "Compte"
+		"account": "Compte",
+		"accounts": "Comptes",
+		"active": "Compte actif",
+		"addAccount": "Ajouter un compte",
+		"addAccountTitle": "Ajouter un autre compte — {app}",
+		"currentAccounts": "Comptes déjà connectés sur cet appareil",
+		"backToMail": "Retour à Quickmail",
+		"switchFailed": "Impossible de changer de compte. Réessayez."
 	},
 	"auth": {
 		"signInTitle": "Connexion — {app}",
@@ -287,6 +294,9 @@
 		"addRecipient": "Ajouter un destinataire",
 		"couldNotLoad": "Impossible de charger cette conversation",
 		"couldNotForward": "Impossible de transférer",
+		"autoForwardedTo": "Transféré automatiquement à {target}",
+		"autoForwardFailed": "Échec du transfert automatique",
+		"autoForwardSkipped": "Transfert automatique ignoré",
 		"couldNotSendReply": "Impossible d’envoyer la réponse",
 		"failedToForward": "Échec du transfert",
 		"messagesCount": "{count} messages",
@@ -342,6 +352,10 @@
 		"makeDefault": "Définir par défaut",
 		"removeAddress": "Retirer {address}",
 		"mailboxSignature": "Signature de cette adresse",
+		"replyTo": "Répondre à (optionnel)",
+		"replyToHint": "Les réponses à cet e-mail arrivent à cette adresse",
+		"forwardTo": "Transfert automatique vers (optionnel)",
+		"forwardToHint": "Les nouveaux e-mails de cette adresse sont aussi envoyés ici automatiquement",
 		"addressLabel": "Adresse",
 		"canSendNotReceive": "{domain} peut envoyer, mais la réception est désactivée.",
 		"couldNotAddAddress": "Impossible d’ajouter cette adresse",
@@ -396,7 +410,9 @@
 		"disconnectDevice": "Déconnecter {name} ?",
 		"thisBrowserSession": "cette session de navigateur",
 		"couldNotDisconnect": "Impossible de déconnecter cet appareil",
-		"disconnectNetwork": "Erreur réseau lors de la déconnexion de cet appareil"
+		"disconnectNetwork": "Erreur réseau lors de la déconnexion de cet appareil",
+		"couldNotSaveReplyTo": "Impossible d’enregistrer cette adresse",
+		"couldNotSaveForwardTo": "Impossible d’enregistrer cette adresse de transfert"
 	},
 	"install": {
 		"homeScreen": "Écran d’accueil",

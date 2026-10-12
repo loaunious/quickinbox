@@ -595,6 +595,18 @@
 									{/each}
 								</div>
 							{/if}
+							{#if message.auto_forward}
+								{@const fwd = message.auto_forward}
+								<p class="z-auto-forward" class:failed={fwd.status === 'failed'}>
+									<Icon name="Forward" size={12} />
+									{#if fwd.status === 'sent'}
+										{t('thread.autoForwardedTo', { target: fwd.target })}
+									{:else}
+										{t(fwd.status === 'failed' ? 'thread.autoForwardFailed' : 'thread.autoForwardSkipped')}
+										{#if fwd.error}<span> — {fwd.error}</span>{/if}
+									{/if}
+								</p>
+							{/if}
 							<div class="z-msg-actions">
 								<button type="button" class="z-action-btn" onclick={() => startReply('reply', message)}>
 									<Icon name="Reply" size={14} />

@@ -1,5 +1,6 @@
 import type { Component, Snippet } from 'svelte';
 import type { MailboxCounts, MailboxView, User, Domain, MailAddress } from '$lib/types';
+import type { AccountSummary } from '$lib/server/auth';
 
 export type ThemeCapabilities = {
 	twoPane: boolean;
@@ -14,6 +15,7 @@ export type ThemeShellData = {
 	domains: Domain[];
 	addresses: MailAddress[];
 	activeDomainId: string | null;
+	accounts: AccountSummary[];
 	counts: MailboxCounts;
 	uiTheme: string;
 };

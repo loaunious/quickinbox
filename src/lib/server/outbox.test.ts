@@ -31,6 +31,7 @@ type AddressRow = {
 	label: string | null;
 	is_default: number;
 	signature: string | null;
+	reply_to: string | null;
 	created_at: string;
 };
 
@@ -85,6 +86,7 @@ const defaultAddress: AddressRow = {
 	label: 'Office',
 	is_default: 1,
 	signature: null,
+	reply_to: null,
 	created_at: user.created_at
 };
 

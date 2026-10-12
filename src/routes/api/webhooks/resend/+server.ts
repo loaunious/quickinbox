@@ -60,6 +60,11 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 				VAPID_PUBLIC_KEY: platform?.env.VAPID_PUBLIC_KEY,
 				VAPID_PRIVATE_KEY: platform?.env.VAPID_PRIVATE_KEY,
 				VAPID_SUBJECT: platform?.env.VAPID_SUBJECT,
+				// Auto-forwarding sends through the same provider that delivered.
+				EMAIL_PROVIDER: platform?.env.EMAIL_PROVIDER,
+				RESEND_API_KEY: platform?.env.RESEND_API_KEY,
+				EMAIL: platform?.env.EMAIL,
+				CLOUDFLARE_MAIL_DOMAINS: platform?.env.CLOUDFLARE_MAIL_DOMAINS,
 				waitUntil: platform?.ctx ? (promise) => platform.ctx.waitUntil(promise) : undefined
 			},
 			client

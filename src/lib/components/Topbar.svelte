@@ -5,17 +5,20 @@
 	import { t } from '$lib/i18n';
 	import Icon from './Icon.svelte';
 	import LocaleSwitcher from './LocaleSwitcher.svelte';
+	import AccountSwitcher from './AccountSwitcher.svelte';
 	import type { MailAddress } from '$lib/types';
 
 	let {
 		userName,
 		userEmail,
 		addresses,
+		accounts,
 		onLogout
 	}: {
 		userName: string;
 		userEmail: string;
 		addresses: MailAddress[];
+		accounts: import('$lib/server/auth').AccountSummary[];
 		onLogout: () => void;
 	} = $props();
 
@@ -119,6 +122,9 @@
 						<span class="menu-name">{userName}</span>
 						<span class="menu-address">{primaryAddress}</span>
 					</p>
+					{#if accounts.length > 0}
+						<AccountSwitcher {accounts} onSwitch={() => (menuOpen = false)} />
+					{/if}
 					<a href="/settings" class="menu-item" role="menuitem" onclick={() => (menuOpen = false)}>
 						<Icon name="user-settings-line" size={15} /> {t('nav.settings')}
 					</a>

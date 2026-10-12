@@ -49,6 +49,8 @@ test('a forwarded send uses its selected identity and has no reply-chain headers
 		label: 'Me',
 		is_default: true,
 		signature: null,
+		reply_to: null,
+		forward_to: null,
 		created_at: '2026-01-01'
 	};
 
